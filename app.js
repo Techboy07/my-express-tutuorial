@@ -48,37 +48,56 @@ res.end()
 
 server.listen(5000)*/
 
-const express = require("express")
-const app = express()
-const logger = require("./logger")
-const authorize = require("./authorize")
-//const {products} = require("./data")
+const express = require("express");
+const app = express();
+// const logger = require("./logger");
+// const authorize = require("./authorize");
+let { people } = require("./data");
 
-app.use([logger,authorize])
+app.use(express.static('./methods-public'));
+
+app.use(express.urlencoded({extended: false}))
+
+app.use(express.json())
+
+app.get("/", (req, res) => {
+  res.send("home");
+});
+app.get("/about", (req, res) => {
+  res.send("About");
+});
+
+app.get("/api/products", (req, res) => {
+  res.send("Products");
+});
+
+app.get("/api/items", (req, res) => {
+  console.log(req.user);
+
+  res.send("Items");
+});
+
+app.get("/api/people", (req, res) => {
+  res.status(200).json({ success: true, data: people });
+});
 
 
-app.get("/",(req,res)=>{
-  res.send("home")
-
+app.post('/login', (req, res )=> { 
+  const {name} = req.body
+  if(name){
+return res.status(200).send(`Welcome ${name}`)
+  }
+  res.status(401).send('please provide a name')
 })
-app.get("/about",(req,res)=>{
 
-  res.send("About")
+
+app.post('/api/people', (req, res) => {
+  const {name} = req.body
+  if(!name){
+    return res.status(400).json({success: false, msg: 'please provide name value'})
+      }
+  res.status(201).json({success: true, person: name})
 })
-
-
-app.get("/api/products",(req,res)=>{
-
-      res.send("Products")
-    })
-
-app.get("/api/items",(req,res)=>{
-
-      res.send("Items")
-    })
-
-
-
 /*app.get("/",(req,res)=>{
 
   res.send('<h1>Home Page</h1><a href="/api/products">products</a>')
@@ -129,4 +148,6 @@ return product.name.startsWith(search)
 /*app.all("*",(req,res)=>{ 
 res.status(404).send("request not found")})
 */
-app.listen(5000, ()=>{console.log('server is listening at port:',5000)})
+app.listen(5000, () => {
+  console.log("server is listening at port:", 5000);
+});
