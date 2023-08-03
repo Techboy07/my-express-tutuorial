@@ -60,6 +60,16 @@ app.use(express.urlencoded({extended: false}))
 
 app.use(express.json())
 
+
+app.post('/login', (req, res )=> { 
+  const {name} = req.body
+  if(name){
+return res.status(200).send(`Welcome ${name}`)
+  }
+  res.status(401).send('please provide a name')
+})
+
+
 app.get("/", (req, res) => {
   res.send("home");
 });
@@ -82,13 +92,6 @@ app.get("/api/people", (req, res) => {
 });
 
 
-app.post('/login', (req, res )=> { 
-  const {name} = req.body
-  if(name){
-return res.status(200).send(`Welcome ${name}`)
-  }
-  res.status(401).send('please provide a name')
-})
 
 
 app.post('/api/people', (req, res) => {
@@ -98,13 +101,61 @@ app.post('/api/people', (req, res) => {
       }
   res.status(201).json({success: true, person: name})
 })
-/*app.get("/",(req,res)=>{
+ 
 
-  res.send('<h1>Home Page</h1><a href="/api/products">products</a>')
-  res.end()
+// modify data
+
+
+app.put('/api/people/:id', (req, res) => {
+  const {id} = req.params
+  const {name} = req.body
+ 
+  const person = people.find(person => person.id === Number(id))
+
+  if(!person){
+return res
+.status(404)
+.json({success: false , msg: `no person with id ${id}`})
+  }
+  const newPeople = people
+  .map((person) => {
+    if (person.id === Number(id)){
+person.name = name
+    }
+    return person
+  })
+  res.status(200).send({success: true, data:newPeople})
 })
 
-app.get('/api/products',(req,res)=>{
+
+
+
+
+app.delete('/api/people/:id', (req, res) => {
+  const {id} = req.params
+  const {name} = req.body
+ 
+  const person = people.find(person => person.id === Number(id))
+
+  if(!person){
+return res
+.status(404)
+.json({success: false , msg: `no person with id ${id}`})
+  }
+  const newPeople = people
+  .filter((person) => {
+    if (person.id !== Number(id)){
+return person
+    }
+    
+})
+  res.status(200).send({success: true, data:newPeople})
+})
+
+
+
+
+/*app.get("/",(req,res)=>{
 const newProducts = products.map((product)=>{
 const {name,id,image} = product
 return {name,id,image}
